@@ -2,28 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Button } from "./ui/Button";
-import Chatbot from "./Chatbot";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { Menu, X } from "lucide-react";
-
-const tabs = [
-  { label: "home", path: "/" },
-  { label: "growth", path: "/Growth" },
-  { label: "feeding", path: "/Feeding" },
-  { label: "sleep", path: "/Sleep" },
-  { label: "medical", path: "/Medical" },
-  { label: "essentials", path: "/Essentials" },
-  { label: "memories", path: "/Memories" },
-  { label: "resources", path: "/Resources" },
-  { label: "faqs", path: "/Faqs" },
-  { label: "lullaby", path: "/Lullaby" },
-];
+import { navLinks } from "../constants/navLinks";
+import DesktopNav from "./DesktopNav";
+import MobileMenu from "./MobileMenu";
+import AuthButtons from "./AuthButtons";
+import Chatbot from "./Chatbot";
 
 const Navbar = () => {
-  const pathname = usePathname();
   const router = useRouter();
   const { isAuth, logout } = useAuth();
 
@@ -69,16 +57,16 @@ const Navbar = () => {
           <div className="bg-white px-6 py-5 rounded-xl shadow-lg text-center w-[320px]">
             <p className="text-gray-800 mb-3">
               Logged out successfully.{" "}
-              <Link href="/Login" className="text-pink-600 font-normal no-underline">
+              <a href="/login" className="text-pink-600 font-normal no-underline">
                 Login
-              </Link>{" "}
+              </a>{" "}
               again!
             </p>
             <div className="w-full h-1 bg-pink-100 rounded-full overflow-hidden">
               <div
                 className="h-full bg-pink-500 transition-all duration-100"
                 style={{ width: `${progress}%` }}
-              ></div>
+              />
             </div>
           </div>
         </div>
@@ -100,101 +88,30 @@ const Navbar = () => {
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 className="text-pink-600 focus:outline-none"
+                aria-label="Toggle menu"
               >
                 {menuOpen ? <X size={28} /> : <Menu size={28} />}
               </button>
             </div>
 
-            {/* Nav - Desktop */}
-            <nav className="hidden md:flex items-center gap-4">
-              {tabs.map(({ label, path }) => (
-                <Link
-                  key={label}
-                  href={path}
-                  className={`transition-colors capitalize ${
-                    pathname === path
-                      ? "text-pink-600"
-                      : "text-gray-600 hover:text-pink-600"
-                  }`}
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
+            {/* Desktop Navigation */}
+            <DesktopNav navLinks={navLinks} />
 
             {/* CTA - Desktop */}
             <div className="hidden md:flex items-center space-x-2">
               <Chatbot />
-              {!isAuth ? (
-                <>
-                  <Button
-                    asChild
-                    className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white"
-                  >
-                    <Link href="/Login">Login</Link>
-                  </Button>
-                  <Button
-                    asChild
-                    className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white"
-                  >
-                    <Link href="/Signup">Signup</Link>
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  onClick={handleLogout}
-                  className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white"
-                >
-                  Logout
-                </Button>
-              )}
+              <AuthButtons isAuth={isAuth} onLogout={handleLogout} />
             </div>
           </div>
 
           {/* Mobile Menu */}
-          {menuOpen && (
-            <div className="md:hidden mt-4 space-y-3">
-              <div className="flex flex-col gap-3">
-                {tabs.map(({ label, path }) => (
-                  <Link
-                    key={label}
-                    href={path}
-                    onClick={() => setMenuOpen(false)}
-                    className={`block capitalize px-3 py-2 rounded-md text-sm ${
-                      pathname === path
-                        ? "text-pink-600 font-medium"
-                        : "text-gray-700 hover:text-pink-600"
-                    }`}
-                  >
-                    {label}
-                  </Link>
-                ))}
-              </div>
-              <div className="mt-3 flex flex-col gap-2">
-                {!isAuth ? (
-                  <>
-                    <Button
-                    className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white"
-                  >
-                    <Link href="/Login">Login</Link>
-                  </Button>
-                  <Button
-                    className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white"
-                  >
-                    <Link href="/Signup">Signup</Link>
-                  </Button>
-                  </>
-                ) : (
-                  <Button
-                  onClick={handleLogout}
-                  className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white"
-                >
-                  Logout
-                </Button>
-                )}
-              </div>
-            </div>
-          )}
+          <MobileMenu 
+            navLinks={navLinks} 
+            isOpen={menuOpen} 
+            onClose={() => setMenuOpen(false)}
+            isAuth={isAuth}
+            onLogout={handleLogout}
+          />
         </div>
       </header>
     </>
